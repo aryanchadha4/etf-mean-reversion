@@ -1,7 +1,8 @@
-import yfinance as yf
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+from strategy import generate_zscore_signal
+from backtest import compute_strategy_returns, calculate_metrics
+from utils import plot_results, download_prices
+from utils import log_trades
+
 
 # Parameters
 TICKER = "SPY"
@@ -9,48 +10,27 @@ START_DATE = "2018-01-01"
 END_DATE = "2024-12-31"
 WINDOW = 20
 ENTRY_Z = 1.5
+EXIT_Z = 0.5
 
-# Load Data
-data = yf.download(TICKER, start=START_DATE, end=END_DATE)
-prices = data['Close'].copy()
-if isinstance(prices, pd.DataFrame) and prices.shape[1] == 1:
-    prices = prices.iloc[:, 0]
+# Load data
+prices = download_prices(TICKER, START_DATE, END_DATE)
 
+# Run strategy
+signal, z_score = generate_zscore_signal(prices, WINDOW, ENTRY_Z, EXIT_Z)
 
-# Calculate Rolling Mean, Std, Z-Score
-rolling_mean = prices.rolling(WINDOW).mean()
-rolling_std = prices.rolling(WINDOW).std()
-z_score = (prices - rolling_mean) / rolling_std
+# Backtest
+returns, strategy_returns, cumulative_returns, positions = compute_strategy_returns(prices, signal)
 
-# Generate Trading Signals
-signal = pd.Series(0.0, index=prices.index)
-signal[z_score < -ENTRY_Z] = 1     # Long entry
-signal[z_score > ENTRY_Z] = -1     # Short entry
-signal[(z_score > -0.5) & (z_score < 0.5)] = 0  # Exit
+sharpe, max_drawdown, hit_rate = calculate_metrics(strategy_returns)
 
-
-# Calculate Strategy Returns
-positions = signal.shift(1)  # Shift to avoid look-ahead bias
-returns = prices.pct_change()
-strategy_returns = positions * returns
-
-
-# Calculate Performance Metrics
-cumulative_returns = (1 + strategy_returns.fillna(0)).cumprod()
-sharpe = strategy_returns.mean() / strategy_returns.std() * np.sqrt(252)
-max_drawdown = (cumulative_returns / cumulative_returns.cummax() - 1).min()
-hit_rate = (strategy_returns > 0).mean()
-
-# Print Metrics
+# Output results
 print(f"Sharpe Ratio: {sharpe:.2f}")
 print(f"Max Drawdown: {max_drawdown:.2%}")
 print(f"Hit Rate: {hit_rate:.2%}")
 
-# Plot Returns
-plt.figure(figsize=(14,6))
-plt.plot(cumulative_returns, label="Strategy")
-plt.plot((1 + returns.fillna(0)).cumprod(), label="Buy & Hold")
-plt.legend()
-plt.title(f"{TICKER} Mean Reversion Strategy")
-plt.grid(True)
-plt.show()
+# Save trade log
+log_trades(prices, positions)
+
+# Plot
+plot_results(prices.index, cumulative_returns, returns)
+
