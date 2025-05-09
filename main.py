@@ -1,36 +1,62 @@
 from strategy import generate_zscore_signal
 from backtest import compute_strategy_returns, calculate_metrics
-from utils import plot_results, download_prices
-from utils import log_trades
-
+from utils import download_prices, plot_results
+import pandas as pd
 
 # Parameters
-TICKER = "SPY"
+TICKERS = ["SPY", "QQQ", "IWM", "TLT", "GLD"]
 START_DATE = "2018-01-01"
 END_DATE = "2024-12-31"
 WINDOW = 20
-ENTRY_Z = 1.5
+ENTRY_Z = 2.0
 EXIT_Z = 0.5
 
-# Load data
-prices = download_prices(TICKER, START_DATE, END_DATE)
+results = []
+plot_data = []  # For charting only
 
-# Run strategy
-signal, z_score = generate_zscore_signal(prices, WINDOW, ENTRY_Z, EXIT_Z)
+for ticker in TICKERS:
+    print(f"\nBacktesting {ticker}...")
+    prices = download_prices(ticker, START_DATE, END_DATE)
 
-# Backtest
-returns, strategy_returns, cumulative_returns, positions = compute_strategy_returns(prices, signal)
+    signal, _ = generate_zscore_signal(prices, window=WINDOW, entry_z=ENTRY_Z, exit_z=EXIT_Z)
+    returns, strategy_returns, cumulative_returns, positions = compute_strategy_returns(prices, signal)
+    sharpe, drawdown, hit_rate = calculate_metrics(strategy_returns)
 
-sharpe, max_drawdown, hit_rate = calculate_metrics(strategy_returns)
+    # Save summary metrics (for CSV)
+    results.append({
+        "Ticker": ticker,
+        "Sharpe Ratio": round(sharpe, 3),
+        "Max Drawdown": f"{drawdown:.2%}",
+        "Hit Rate": f"{hit_rate:.2%}"
+    })
 
-# Output results
-print(f"Sharpe Ratio: {sharpe:.2f}")
-print(f"Max Drawdown: {max_drawdown:.2%}")
-print(f"Hit Rate: {hit_rate:.2%}")
+    # Save time series for plotting
+    plot_data.append({
+        "Ticker": ticker,
+        "Dates": prices.index,
+        "Cumulative Returns": cumulative_returns,
+        "Returns": returns
+    })
 
-# Save trade log
-log_trades(prices, positions)
 
-# Plot
-plot_results(prices.index, cumulative_returns, returns)
+
+import matplotlib.pyplot as plt
+
+
+for res in plot_data:
+    plt.figure(figsize=(12, 5))
+    plt.plot(res["Dates"], res["Cumulative Returns"], label="Strategy")
+    plt.plot(res["Dates"], (1 + res["Returns"].fillna(0)).cumprod(), label="Buy & Hold")
+    plt.title(f"{res['Ticker']} Mean Reversion Strategy")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+
+# Save results
+df = pd.DataFrame(results)
+df.to_csv("outputs/multi_etf_results.csv", index=False)
+
 
