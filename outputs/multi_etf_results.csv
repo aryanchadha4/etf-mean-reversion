@@ -1,6 +1,5 @@
-Ticker,Sharpe Ratio,Max Drawdown,Hit Rate
-SPY,0.77,-6.61%,4.60%
-QQQ,0.795,-9.03%,5.00%
-IWM,-0.024,-17.57%,5.00%
-TLT,0.633,-11.77%,6.14%
-GLD,-0.334,-13.80%,5.34%
+Strategy,Ticker,Sharpe Ratio,Max Drawdown,Hit Rate
+Z-Score,SPY,0.77,-6.61%,4.60%
+Z-Score,QQQ,0.795,-9.03%,5.00%
+Quantitativo,SPY,1.128,-19.35%,44.72%
+Quantitativo,QQQ,1.123,-22.80%,45.23%

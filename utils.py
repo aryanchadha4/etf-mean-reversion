@@ -3,14 +3,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def download_prices(ticker, start, end):
+    import yfinance as yf
     data = yf.download(ticker, start=start, end=end)
-    prices = data['Close']
 
-    # Flatten if it's a 1-column DataFrame
-    if isinstance(prices, pd.DataFrame):
-        prices = prices.squeeze()  # Converts DataFrame with 1 column to Series
+    # Fix any multi-index issue
+    if isinstance(data.columns, pd.MultiIndex):
+        data.columns = data.columns.get_level_values(0)  # Flatten the columns
 
-    return prices
+    return data[["High", "Low", "Close"]]
 
 def plot_results(dates, strategy_cumulative, benchmark_returns):
     plt.figure(figsize=(14, 6))

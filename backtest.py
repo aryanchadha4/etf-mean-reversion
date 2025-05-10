@@ -9,8 +9,58 @@ def compute_strategy_returns(prices, signal):
     return returns, strategy_returns, cumulative_returns, positions
 
 def calculate_metrics(strategy_returns):
+    import numpy as np
+
     sharpe = strategy_returns.mean() / strategy_returns.std() * np.sqrt(252)
-    max_drawdown = (1 + strategy_returns.fillna(0)).cumprod().div(
-        (1 + strategy_returns.fillna(0)).cumprod().cummax()).sub(1).min()
+
+    cumulative_returns = (1 + strategy_returns.fillna(0)).cumprod()
+    drawdown_series = cumulative_returns / cumulative_returns.cummax() - 1
+
+    max_drawdown = drawdown_series.min(skipna=True)
+    if isinstance(max_drawdown, pd.Series):
+        max_drawdown = max_drawdown.values[0]  # handle edge case
+    else:
+        max_drawdown = float(max_drawdown)
+
+    # If it's a DataFrame, select the first column
+    if isinstance(strategy_returns, pd.DataFrame):
+        strategy_returns = strategy_returns.iloc[:, 0]
+
     hit_rate = (strategy_returns > 0).mean()
+
+
     return sharpe, max_drawdown, hit_rate
+
+
+
+
+
+
+def compute_quantitativo_returns(prices, signal):
+    close = prices['Close']
+    high = prices['High']
+    returns = close.pct_change().fillna(0)
+    sma_300 = close.rolling(window=300).mean()
+
+    position = 0
+    strategy_returns = pd.Series(0.0, index=close.index)
+
+    for i in range(1, len(prices)):
+        if position == 1:
+            # Exit condition: today's close > yesterday's high
+            if (close.iloc[i] < sma_300.iloc[i]):
+                position = 0
+            else:
+                strategy_returns.iloc[i] = returns.iloc[i]
+
+        # Entry condition: go long
+        if position == 0 and signal.iloc[i] == 1:
+            position = 1
+
+    cumulative_returns = (1 + strategy_returns).cumprod()
+    print("Number of trades:", signal.sum())
+    print("Avg return per trade:", strategy_returns[strategy_returns != 0].mean())
+    return returns, strategy_returns, cumulative_returns, strategy_returns != 0
+
+
+
