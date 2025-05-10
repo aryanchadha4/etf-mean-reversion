@@ -22,7 +22,7 @@ def generate_quantitativo_signal(prices):
 
     rolling_hl = (high - low).rolling(window=25).mean()
     rolling_high = high.rolling(window=10).max()
-    lower_band = rolling_high - 2.5 * rolling_hl
+    lower_band = rolling_high - 2.2 * rolling_hl
     IBS = (close - low) / (high - low)
 
     # Entry signal: 1 when entry condition met, else 0

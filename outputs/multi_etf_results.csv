@@ -1,5 +1,5 @@
 Strategy,Ticker,Sharpe Ratio,Max Drawdown,Hit Rate
 Z-Score,SPY,0.77,-6.61%,4.60%
 Z-Score,QQQ,0.795,-9.03%,5.00%
-Quantitativo,SPY,1.128,-19.35%,44.72%
+Quantitativo,SPY,1.123,-19.35%,44.72%
 Quantitativo,QQQ,1.123,-22.80%,45.23%
