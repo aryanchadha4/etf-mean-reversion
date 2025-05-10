@@ -4,6 +4,8 @@ from utils import download_prices, plot_results
 import pandas as pd
 from strategy import generate_quantitativo_signal
 from backtest import compute_quantitativo_returns
+from strategy import generate_quantitativo_longshort_signal
+from backtest import compute_quantitativo_longshort_returns
 
 
 # Parameters
@@ -22,6 +24,10 @@ strategies = {
     "Quantitativo": {
         "signal_func": generate_quantitativo_signal,
         "backtest_func": compute_quantitativo_returns
+    },
+    "Quantitativo Long-Short": {
+        "signal_func": generate_quantitativo_longshort_signal,
+        "backtest_func": compute_quantitativo_longshort_returns
     }
 }
 

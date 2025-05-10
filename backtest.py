@@ -64,3 +64,44 @@ def compute_quantitativo_returns(prices, signal):
 
 
 
+def compute_quantitativo_longshort_returns(prices, signal):
+    close = prices["Close"]
+    high = prices["High"]
+    low = prices["Low"]
+    returns = close.pct_change().fillna(0)
+    sma_300 = close.rolling(window=300).mean()
+
+    # Volatility measure (20-day rolling std of returns)
+    vol = close.pct_change().rolling(20).std()
+    vol = vol.replace(0, np.nan).fillna(method='bfill')  # avoid division by zero
+
+    base_risk = 0.02  # you can tune this
+
+    strategy_returns = pd.Series(0.0, index=close.index)
+    position = 0
+    position_scaling = 0
+
+    for i in range(1, len(prices)):
+        # Exit conditions
+        if position != 0:
+            # Dynamic stop-loss exit
+            if (position == 1 and close.iloc[i] < sma_300.iloc[i]) or \
+               (position == -1 and close.iloc[i] > sma_300.iloc[i]):
+                position = 0
+                position_scaling = 0
+            else:
+                strategy_returns.iloc[i] = returns.iloc[i] * position_scaling * position
+
+        # Entry conditions
+        if position == 0:
+            if signal.iloc[i] != 0:
+                position = signal.iloc[i]
+                position_scaling = base_risk / vol.iloc[i]
+
+    cumulative_returns = (1 + strategy_returns).cumprod()
+
+    print("Number of trades:", (signal != 0).sum())
+    print("Avg return per trade:", strategy_returns[strategy_returns != 0].mean())
+
+    return returns, strategy_returns, cumulative_returns, strategy_returns != 0
+

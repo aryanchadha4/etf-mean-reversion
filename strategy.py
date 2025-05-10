@@ -29,3 +29,27 @@ def generate_quantitativo_signal(prices):
     signal = ((close < lower_band) & (IBS < 0.3)).astype(int)
     return signal
 
+def generate_quantitativo_longshort_signal(prices):
+    high = prices['High']
+    low = prices['Low']
+    close = prices['Close']
+
+    hl_mean = (high - low).rolling(window=25).mean()
+    rolling_high = high.rolling(window=10).max()
+    rolling_low = low.rolling(window=10).min()
+    lower_band = rolling_high - 2.2 * hl_mean
+    upper_band = rolling_low + 2.2 * hl_mean
+    IBS = (close - low) / (high - low)
+    sma_300 = close.rolling(window=300).mean()
+
+    signal = pd.Series(0, index=prices.index)
+
+    # Long condition
+    long_condition = (close < lower_band) & (IBS < 0.3) & (close > sma_300)
+    signal[long_condition] = 1
+
+    # Short condition
+    short_condition = (close > upper_band) & (IBS > 0.7) & (close < sma_300)
+    signal[short_condition] = -1
+
+    return signal
