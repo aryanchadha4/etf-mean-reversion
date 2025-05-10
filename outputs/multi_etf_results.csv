@@ -1,7 +1,9 @@
-Strategy,Ticker,Sharpe Ratio,Max Drawdown,Hit Rate
-Z-Score,SPY,0.77,-6.61%,4.60%
-Z-Score,QQQ,0.795,-9.03%,5.00%
-Quantitativo,SPY,1.123,-19.35%,44.72%
-Quantitativo,QQQ,1.123,-22.80%,45.23%
-Quantitativo Long-Short,SPY,0.98,-35.06%,42.90%
-Quantitativo Long-Short,QQQ,0.825,-46.68%,41.36%
+Strategy,Ticker,Sharpe Ratio,Max Drawdown,Hit Rate,Num Trades,Avg Trade Return
+Z-Score,SPY,0.77,-6.61%,4.60%,4,0.2434%
+Z-Score,QQQ,0.795,-9.03%,5.00%,-16,0.2693%
+Quantitativo,SPY,1.123,-19.35%,44.72%,194,0.0741%
+Quantitativo,QQQ,1.123,-22.80%,45.23%,209,0.1043%
+Quantitativo Long-Short,SPY,0.98,-35.06%,42.90%,53,0.1380%
+Quantitativo Long-Short,QQQ,0.825,-46.68%,41.36%,60,0.1454%
+Quantitativo ML-Filtered,SPY,1.076,-19.35%,44.32%,109,0.0711%
+Quantitativo ML-Filtered,QQQ,1.057,-22.80%,43.81%,111,0.0997%

@@ -15,7 +15,6 @@ exit_z_values = np.arange(0.25, 1.1, 0.25)
 
 results = []
 
-# Load data once
 prices = download_prices(TICKER, START_DATE, END_DATE)
 
 # Grid search

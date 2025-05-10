@@ -8,11 +8,11 @@ cycler==0.12.1
 fonttools==4.57.0
 frozendict==2.4.6
 idna==3.10
-joblib==1.5.0
+joblib @ file:///home/conda/feedstock_root/build_artifacts/joblib_1746352627188/work
 kiwisolver==1.4.8
 matplotlib==3.10.3
 multitasking==0.0.11
-numpy==2.2.5
+numpy @ file:///Users/runner/miniforge3/conda-bld/numpy_1745118924781/work/dist/numpy-2.2.5-cp310-cp310-macosx_11_0_arm64.whl#sha256=c1e9ae581fd91e1bbee2dcd2adee8f5d2d9bc8770e334da24b4aa3642953adf4
 packaging==25.0
 pandas==2.2.3
 patsy==1.0.1
@@ -27,14 +27,15 @@ python-dateutil==2.9.0.post0
 pytz==2025.2
 requests==2.32.3
 scikit-base==0.12.2
-scikit-learn==1.6.1
-scipy==1.15.3
+scikit-learn @ file:///Users/runner/miniforge3/conda-bld/scikit-learn_1736496842450/work/dist/scikit_learn-1.6.1-cp310-cp310-macosx_11_0_arm64.whl#sha256=238639329b98f5edc58c48741e1d3a64cf35f231ce2b2312c65e043d72fcf1cc
+scipy @ file:///Users/runner/miniforge3/conda-bld/scipy-split_1739790705989/work/dist/scipy-1.15.2-cp310-cp310-macosx_11_0_arm64.whl#sha256=7edcf528c303a2d0aa5afa5be176589f18a84d21a8d85f1972553ab95cab0933
 six==1.17.0
 soupsieve==2.7
 statsmodels==0.14.4
-threadpoolctl==3.6.0
+threadpoolctl @ file:///home/conda/feedstock_root/build_artifacts/threadpoolctl_1741878222898/work
 typing_extensions==4.13.2
 tzdata==2025.2
 urllib3==2.4.0
 websockets==15.0.1
+xgboost @ file:///Users/runner/miniforge3/conda-bld/xgboost-split_1745056743506/work/python-package
 yfinance==0.2.59

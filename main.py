@@ -7,6 +7,10 @@ from backtest import compute_quantitativo_returns
 from strategy import generate_quantitativo_longshort_signal
 from backtest import compute_quantitativo_longshort_returns
 
+from strategy import train_filter_model, generate_quantitativo_ml_signal
+
+
+
 
 # Parameters
 TICKERS = ["SPY", "QQQ"]
@@ -15,6 +19,8 @@ END_DATE = "2024-12-31"
 WINDOW = 20
 ENTRY_Z = 2.0
 EXIT_Z = 0.5
+
+trained_model = train_filter_model(download_prices("QQQ", START_DATE, END_DATE))
 
 strategies = {
     "Z-Score": {
@@ -28,7 +34,12 @@ strategies = {
     "Quantitativo Long-Short": {
         "signal_func": generate_quantitativo_longshort_signal,
         "backtest_func": compute_quantitativo_longshort_returns
+    }, 
+    "Quantitativo ML-Filtered": {
+    "signal_func": lambda prices: generate_quantitativo_ml_signal(prices, trained_model),
+    "backtest_func": compute_quantitativo_returns
     }
+
 }
 
 results = []
@@ -48,17 +59,24 @@ for strategy_name, funcs in strategies.items():
             signal = funcs["signal_func"](prices)
             returns, strategy_returns, cumulative_returns, positions = funcs["backtest_func"](prices, signal)
 
+        num_trades = signal.sum()
+        avg_trade_return = strategy_returns[strategy_returns != 0].mean()
+
         sharpe, drawdown, hit_rate = calculate_metrics(strategy_returns)
 
         print(f"DEBUG: {strategy_name} | {ticker} | Sharpe: {sharpe} | Drawdown: {drawdown} | Hit Rate: {hit_rate}")
+        print(f"Number of trades: {num_trades} | Avg return per trade: {avg_trade_return:.6f}")
 
         results.append({
             "Strategy": strategy_name,
             "Ticker": ticker,
             "Sharpe Ratio": round(sharpe, 3),
             "Max Drawdown": f"{drawdown:.2%}",
-            "Hit Rate": f"{hit_rate:.2%}"
+            "Hit Rate": f"{hit_rate:.2%}",
+            "Num Trades": int(num_trades),
+            "Avg Trade Return": f"{avg_trade_return:.4%}"
         })
+
 
         plot_data.append({
             "Strategy": strategy_name,
@@ -83,6 +101,13 @@ for res in plot_data:
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+
+
+from xgboost import plot_importance
+
+plot_importance(trained_model)
+plt.title("XGBoost Feature Importance")
+plt.show()
 
 
 

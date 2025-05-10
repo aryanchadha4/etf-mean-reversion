@@ -53,3 +53,54 @@ def generate_quantitativo_longshort_signal(prices):
     signal[short_condition] = -1
 
     return signal
+
+def generate_quantitativo_ml_signal(prices, model):
+    high = prices['High']
+    low = prices['Low']
+    close = prices['Close']
+
+    rolling_hl = (high - low).rolling(window=25).mean()
+    rolling_high = high.rolling(10).max()
+    lower_band = rolling_high - 2.2 * rolling_hl
+    IBS = (close - low) / (high - low)
+
+    entry_condition = (close < lower_band) & (IBS < 0.3)
+
+    features = pd.DataFrame({
+        'IBS': IBS,
+        'BandDiff': rolling_high - 2.2 * rolling_hl
+    }).fillna(0)
+
+    ml_filter = model.predict(features)
+    signal = (entry_condition & (ml_filter == 1)).astype(int)
+    return signal
+
+
+
+
+from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
+
+def generate_features(prices):
+    high = prices['High']
+    low = prices['Low']
+    close = prices['Close']
+
+    df = pd.DataFrame(index=prices.index)
+    df['IBS'] = (close - low) / (high - low)
+    df['BandDiff'] = high.rolling(10).max() - 2.2 * (high - low).rolling(25).mean()
+    df['Return+1'] = close.pct_change().shift(-1)
+    df['Target'] = (df['Return+1'] > 0).astype(int)
+    df = df.dropna()
+    return df
+
+def train_filter_model(prices):
+    df = generate_features(prices)
+    X = df[['IBS', 'BandDiff']]
+    y = df['Target']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, shuffle=False, test_size=0.3)
+
+    model = XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+    model.fit(X_train, y_train)
+
+    return model
