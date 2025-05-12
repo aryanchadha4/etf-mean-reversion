@@ -86,6 +86,23 @@ for strategy_name, funcs in strategies.items():
             "Returns": returns
         })
 
+        action_log = pd.DataFrame(index=signal.index)
+        action_log["Signal"] = signal
+
+        # You can label the actions based on the signal value
+        action_log["Action"] = signal.map({1: "Buy/Long", -1: "Sell/Short", 0: "Hold"})
+
+        # Add metadata
+        action_log["Strategy"] = strategy_name
+        action_log["Ticker"] = ticker
+
+        # Filter only dates where action is not hold (optional)
+        action_log = action_log[action_log["Action"] != "Hold"]
+
+        # Save or append logs to a list
+        if "all_actions" not in locals():
+            all_actions = []
+        all_actions.append(action_log)
 
 
 
@@ -110,8 +127,6 @@ plt.title("XGBoost Feature Importance")
 plt.show()
 
 
-
-
 # Save results
 print("Saving results to CSV...")
 df = pd.DataFrame(results)
@@ -119,3 +134,6 @@ print(df)
 df.to_csv("outputs/multi_etf_results.csv", index=False)
 
 
+# Combine all action logs into one DataFrame
+all_actions_df = pd.concat(all_actions)
+all_actions_df.to_csv("outputs/trade_actions_log.csv")

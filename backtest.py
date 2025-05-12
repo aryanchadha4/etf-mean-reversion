@@ -8,6 +8,7 @@ def compute_strategy_returns(prices, signal):
     cumulative_returns = (1 + strategy_returns.fillna(0)).cumprod()
     return returns, strategy_returns, cumulative_returns, positions
 
+
 def calculate_metrics(strategy_returns):
     sharpe = strategy_returns.mean() / strategy_returns.std() * np.sqrt(252)
 
@@ -63,7 +64,7 @@ def compute_quantitativo_longshort_returns(prices, signal):
     vol = close.pct_change().rolling(20).std()
     vol = vol.replace(0, np.nan).fillna(method='bfill')  # avoid division by zero
 
-    base_risk = 0.02  # you can tune this
+    base_risk = 0.02
 
     strategy_returns = pd.Series(0.0, index=close.index)
     position = 0

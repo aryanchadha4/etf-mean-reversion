@@ -13,8 +13,6 @@ def generate_zscore_signal(prices, window=20, entry_z=2.0, exit_z=0.5):
     return signal, z_score
 
 
-
-
 def generate_quantitativo_signal(prices):
     high = prices['High']
     low = prices['Low']
