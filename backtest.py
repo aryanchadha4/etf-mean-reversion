@@ -25,7 +25,7 @@ def calculate_metrics(strategy_returns):
 
 
 
-def compute_quantitativo_returns(prices, signal):
+def compute_optimized_returns(prices, signal):
     close = prices['Close']
     high = prices['High']
     returns = close.pct_change().fillna(0)
@@ -53,7 +53,7 @@ def compute_quantitativo_returns(prices, signal):
 
 
 
-def compute_quantitativo_longshort_returns(prices, signal):
+def compute_optimized_longshort_returns(prices, signal):
     close = prices["Close"]
     high = prices["High"]
     low = prices["Low"]

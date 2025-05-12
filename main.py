@@ -2,12 +2,12 @@ from strategy import generate_zscore_signal
 from backtest import compute_strategy_returns, calculate_metrics
 from utils import download_prices, plot_results
 import pandas as pd
-from strategy import generate_quantitativo_signal
-from backtest import compute_quantitativo_returns
-from strategy import generate_quantitativo_longshort_signal
-from backtest import compute_quantitativo_longshort_returns
+from strategy import generate_optimized_signal
+from backtest import compute_optimized_returns
+from strategy import generate_optimized_longshort_signal
+from backtest import compute_optimized_longshort_returns
 
-from strategy import train_filter_model, generate_quantitativo_ml_signal
+from strategy import train_filter_model, generate_optimized_ml_signal
 
 
 
@@ -27,17 +27,17 @@ strategies = {
         "signal_func": generate_zscore_signal,
         "backtest_func": compute_strategy_returns
     },
-    "Quantitativo": {
-        "signal_func": generate_quantitativo_signal,
-        "backtest_func": compute_quantitativo_returns
+    "Optimized": {
+        "signal_func": generate_optimized_signal,
+        "backtest_func": compute_optimized_returns
     },
-    "Quantitativo Long-Short": {
-        "signal_func": generate_quantitativo_longshort_signal,
-        "backtest_func": compute_quantitativo_longshort_returns
+    "Optimized Long-Short": {
+        "signal_func": generate_optimized_longshort_signal,
+        "backtest_func": compute_optimized_longshort_returns
     }, 
-    "Quantitativo ML-Filtered": {
-    "signal_func": lambda prices: generate_quantitativo_ml_signal(prices, trained_model),
-    "backtest_func": compute_quantitativo_returns
+    "Optimized ML-Filtered": {
+    "signal_func": lambda prices: generate_optimized_ml_signal(prices, trained_model),
+    "backtest_func": compute_optimized_returns
     }
 
 }
@@ -59,7 +59,7 @@ for strategy_name, funcs in strategies.items():
             signal = funcs["signal_func"](prices)
             returns, strategy_returns, cumulative_returns, positions = funcs["backtest_func"](prices, signal)
 
-        num_trades = signal.sum()
+        num_trades = (signal.diff().fillna(0) != 0).sum()
         avg_trade_return = strategy_returns[strategy_returns != 0].mean()
 
         sharpe, drawdown, hit_rate = calculate_metrics(strategy_returns)
@@ -89,17 +89,14 @@ for strategy_name, funcs in strategies.items():
         action_log = pd.DataFrame(index=signal.index)
         action_log["Signal"] = signal
 
-        # You can label the actions based on the signal value
         action_log["Action"] = signal.map({1: "Buy/Long", -1: "Sell/Short", 0: "Hold"})
 
-        # Add metadata
         action_log["Strategy"] = strategy_name
         action_log["Ticker"] = ticker
 
-        # Filter only dates where action is not hold (optional)
+        # Filter only dates where action is not hold
         action_log = action_log[action_log["Action"] != "Hold"]
 
-        # Save or append logs to a list
         if "all_actions" not in locals():
             all_actions = []
         all_actions.append(action_log)

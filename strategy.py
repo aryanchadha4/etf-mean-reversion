@@ -13,7 +13,7 @@ def generate_zscore_signal(prices, window=20, entry_z=2.0, exit_z=0.5):
     return signal, z_score
 
 
-def generate_quantitativo_signal(prices):
+def generate_optimized_signal(prices):
     high = prices['High']
     low = prices['Low']
     close = prices['Close']
@@ -27,7 +27,7 @@ def generate_quantitativo_signal(prices):
     signal = ((close < lower_band) & (IBS < 0.3)).astype(int)
     return signal
 
-def generate_quantitativo_longshort_signal(prices):
+def generate_optimized_longshort_signal(prices):
     high = prices['High']
     low = prices['Low']
     close = prices['Close']
@@ -52,7 +52,7 @@ def generate_quantitativo_longshort_signal(prices):
 
     return signal
 
-def generate_quantitativo_ml_signal(prices, model):
+def generate_optimized_ml_signal(prices, model):
     high = prices['High']
     low = prices['Low']
     close = prices['Close']
